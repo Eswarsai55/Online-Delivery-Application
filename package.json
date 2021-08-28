@@ -1,0 +1,41 @@
+{
+  "name": "kilobyte",
+  "version": "1.0.0",
+  "description": "backend repository",
+  "main": "index.js",
+  "author": "eswarasai6@gmail.com",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@hapi/glue": "^8.0.0",
+    "@hapi/hapi": "^20.0.0",
+    "@hapi/joi": "^17.1.1",
+    "async": "^3.2.0",
+    "aws-sdk": "^2.744.0",
+    "aws-sns-sms": "^1.0.2",
+    "axios": "^0.20.0",
+    "babel-core": "^6.26.3",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "bcrypt": "^5.0.0",
+    "blipp": "^4.0.1",
+    "boom": "^7.3.0",
+    "dotenv": "^8.2.0",
+    "glob": "^7.1.6",
+    "handlebars": "^4.7.6",
+    "hapi-auth-jwt2": "^10.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.20",
+    "moment": "^2.27.0",
+    "mongoose": "^5.10.2",
+    "nodemailer": "^6.6.2",
+    "password-hash": "^1.2.2",
+    "path": "^0.12.7",
+    "shortid": "^2.2.15",
+    "winston": "^3.3.3"
+  }
+}
