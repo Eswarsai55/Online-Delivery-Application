@@ -30,7 +30,11 @@ module.exports = {
       async.auto({
         user: async.asyncify(() => User.Find({id: userId}).then(users => users[0])),
         order: async.asyncify(() => Order.Find({id})),
-        validDeliveryPersonId: ['user', async.asyncify((results) => {
+        isDeliveryGuy: ['user', async.asyncify((results) => {
+          const { user } = results;
+          return user.user_type === 'DELIVERY';
+        })],
+        updateDeliveryPersonId: ['user', async.asyncify((results) => {
           const { user } = results;
           if(delivery_person_id) {
             if (user.user_type === 'ADMIN') {
@@ -47,10 +51,10 @@ module.exports = {
           return Promise.resolve(true);
           
         })],
-        updateOrderStatus: ['validDeliveryPersonId', async.asyncify((results) => {
-          const { validDeliveryPersonId } = results;
+        updateOrderStatus: ['isDeliveryGuy', async.asyncify((results) => {
+          const { isDeliveryGuy } = results;
           if (status) {
-            if(validDeliveryPersonId) {
+            if(isDeliveryGuy) {
               const data = Object.assign({}, request.payload, {
                 modified_on: Date.now(),
               })
@@ -61,16 +65,12 @@ module.exports = {
           return Promise.resolve(true)
           
         })],
-        updatedOrder: ['order', 'validDeliveryPersonId', async.asyncify((results) => {
-          const { validDeliveryPersonId } = results;
-          if (delivery_person_id) {
-            if(validDeliveryPersonId) {
-              const data = Object.assign({}, request.payload, {
-                modified_on: Date.now(),
-              })
-              return Order.Update(id, data);
-            }
-            return Promise.reject(Boom.badRequest("Delivery Person not found"))
+        updatedOrder: ['order', async.asyncify((results) => {
+          if (!delivery_person_id && !status) {
+            const data = Object.assign({}, request.payload, {
+              modified_on: Date.now(),
+            })
+            return Order.Update(id, data);
           }
           return 
         })],
