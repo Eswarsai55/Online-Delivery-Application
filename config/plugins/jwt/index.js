@@ -2,7 +2,7 @@
 import jwt from 'hapi-auth-jwt2';
 
 function validate (decoded, request) {
-  if (decoded.type === 'CUSTOMER' || decoded.type === 'ADMIN' || decoded.type === 'CP') {
+  if (decoded.type === 'CUSTOMER' || decoded.type === 'ADMIN' || decoded.type === 'DELIVERY') {
     let data = {
       isValid: true,
       credentials: {

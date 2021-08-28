@@ -6,31 +6,30 @@ import async from 'async';
 
 module.exports = {
   description: "Order data",
-  auth: false,
   validate: {
     query: Joi.object({
       id: Joi.string().optional(),
-      phone_number: Joi.string().optional(),
     }),
     failAction: (request, h, err) => err
   },
   handler: async(request, h) => {
     return new Promise((resolve, reject) => {
       const { Order, User } = request.server.plugins.MongoDB;
-      const { phone_number } = request.query;
+      const { userId } = request.auth.credentials;
       async.auto({
-        user: async.asyncify(() => {
-          if (phone_number) {
-            return User.Find({phone_number}).then(users => users[0])
-          }
-          return Promise.resolve(true);
-        }),
+        user: async.asyncify(() => User.Find({id: userId}).then(users => users[0])),
         order: ['user', async.asyncify((results) => {
           const { user } = results;
-          if (phone_number) {
-            return Order.Find({customer_id: user.id})
+          let data = Object.assign({}, request.query)
+          if (user.user_type === 'ADMIN') {
+            return Order.Find(request.query)
+          } else if (user.user_type === 'DELIVERY') {
+            data.delivery_person_id = user.id;
+            return Order.complexFind(data, 'Intersection');
+          } else if(user.user_type === "CUSTOMER") {
+            data.customer_id = user.id;
+            return Order.complexFind(data, 'Intersection');
           }
-          return Order.Find(request.query)
         })]
       }, (err, results) => {
         if (err) {

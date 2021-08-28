@@ -17,8 +17,6 @@ module.exports = {
       thumbnail: Joi.string().optional(),
       category_id: Joi.string().optional(),
       description: Joi.string().optional(),
-      vendor_id: Joi.string().optional(),
-      popular: Joi.boolean().optional(),
     }),
     failAction: (request, h, err) => err
   },

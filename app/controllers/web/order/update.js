@@ -56,8 +56,10 @@ module.exports = {
               })
               return Order.Update(id, data);
             }
+            return Promise.reject(Boom.badRequest('Only delivery person will be able to change the order status'));
           }
-          return Promise.reject(Boom.badRequest('Only delivery person will be able to change the order status'));
+          return Promise.resolve(true)
+          
         })],
         updatedOrder: ['order', 'validDeliveryPersonId', async.asyncify((results) => {
           const { validDeliveryPersonId } = results;
