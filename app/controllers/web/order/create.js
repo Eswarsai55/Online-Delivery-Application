@@ -14,12 +14,12 @@ module.exports = {
       address: Joi.string().required(),
       phone_number: Joi.number().required(),
       email: Joi.string().required(),
-      payment_method: Joi.string().required().valid(...PAYMENT_TYPES),
+      payment_method: Joi.string().optional().valid(...PAYMENT_TYPES),
       ordered_items: Joi.array().items({
         menu_id: Joi.string().required(),
         menu_name: Joi.string().required(),
         count: Joi.number().required(),
-      }),
+      }).required(),
     }),
     failAction: (request, h, err) => err
   },

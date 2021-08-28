@@ -17,14 +17,14 @@ module.exports = {
       const { Order } = request.server.plugins.MongoDB;
       const { id } = request.payload;
       async.auto({
-        menu: async.asyncify(() => Order.Delete(id)),
+        order: async.asyncify(() => Order.Delete(id)),
       }, (err, results) => {
         if (err) {
           console.log(err);
           return reject(err.isBoom ? err : Boom.boomify(err));
         }
         return resolve({
-          data: results.menu,
+          data: results.order,
           success: true,
         });
       })
