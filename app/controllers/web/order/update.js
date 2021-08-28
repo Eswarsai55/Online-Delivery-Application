@@ -26,20 +26,27 @@ module.exports = {
     return new Promise((resolve,reject) => {
       const { Order, User } = request.server.plugins.MongoDB;
       const { id, delivery_person_id, status } = request.payload;
+      const { userId } = request.auth.credentials;
       async.auto({
+        user: async.asyncify(() => User.Find({id: userId}).then(users => users[0])),
         order: async.asyncify(() => Order.Find({id})),
-        validDeliveryPersonId: async.asyncify(() => {
-          if (delivery_person_id) {
-            const data = Object.assign({}, {
-              id: delivery_person_id,
-            })
-            return User.Find(data).then(users => {
-              const user = users[0];
-              return user.user_type === 'DELIVERY'
-            });
+        validDeliveryPersonId: ['user', async.asyncify((results) => {
+          const { user } = results;
+          if(delivery_person_id) {
+            if (user.user_type === 'ADMIN') {
+              const data = Object.assign({}, {
+                id: delivery_person_id,
+              })
+              return User.Find(data).then(users => {
+                const user = users[0];
+                return user.user_type === 'DELIVERY'
+              });
+            }
+            return Promise.reject(Boom.badRequest("Only admin has rights to update the delivery person"))
           }
           return Promise.resolve(true);
-        }),
+          
+        })],
         updateOrderStatus: ['validDeliveryPersonId', async.asyncify((results) => {
           const { validDeliveryPersonId } = results;
           if (status) {
@@ -54,13 +61,16 @@ module.exports = {
         })],
         updatedOrder: ['order', 'validDeliveryPersonId', async.asyncify((results) => {
           const { validDeliveryPersonId } = results;
-          if (validDeliveryPersonId) {
-            const data = Object.assign({}, request.payload, {
-              modified_on: Date.now(),
-            })
-            return Order.Update(id, data);
+          if (delivery_person_id) {
+            if(validDeliveryPersonId) {
+              const data = Object.assign({}, request.payload, {
+                modified_on: Date.now(),
+              })
+              return Order.Update(id, data);
+            }
+            return Promise.reject(Boom.badRequest("Delivery Person not found"))
           }
-          return Promise.reject(Boom.badRequest("Delivery Person not found"))
+          return 
         })],
       }, (err, results) => {
         if (err) {
